@@ -1,10 +1,10 @@
 
 require 5;
 package XML::Element;
-#Time-stamp: "2000-11-03 17:14:37 MST"
+#Time-stamp: "2004-06-10 20:00:02 ADT"
 use HTML::Tagset ();
 use HTML::Element 3.08 ();
-$VERSION = '3.08';
+$VERSION = '3.09';
 @ISA = ('HTML::Element');
 
 # Init:
@@ -100,12 +100,18 @@ L<XML::DOM> and L<XML::Twig> for other XML document tree interfaces.
 
 L<XML::Generator> for more fun.
 
-=head1 COPYRIGHT
 
-Copyright 2000 Sean M. Burke.
+=head1 COPYRIGHT AND DISCLAIMERS
 
-This library is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
+Copyright (c) 2000,2004 Sean M. Burke.  All rights reserved.
+
+This library is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+This program is distributed in the hope that it will be useful, but
+without any warranty; without even the implied warranty of
+merchantability or fitness for a particular purpose.
+
 
 =head1 AUTHOR
 

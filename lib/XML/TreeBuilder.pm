@@ -1,13 +1,13 @@
 
 require 5;
 package XML::TreeBuilder;
-#Time-stamp: "2000-11-03 17:14:16 MST"
+#Time-stamp: "2004-06-10 19:59:14 ADT"
 use strict;
 use XML::Element ();
 use XML::Parser ();
 use vars qw(@ISA $VERSION);
 
-$VERSION = '3.08';
+$VERSION = '3.09';
 @ISA = ('XML::Element');
 
 #==========================================================================
@@ -244,9 +244,18 @@ L<XML::Parser>, L<XML::Element>, L<HTML::TreeBuilder>, L<HTML::DOMbo>.
 
 And for alternate XML document interfaces, L<XML::DOM> and L<XML::Twig>.
 
-=head1 COPYRIGHT
 
-Copyright 2000 Sean M. Burke.
+=head1 COPYRIGHT AND DISCLAIMERS
+
+Copyright (c) 2000,2004 Sean M. Burke.  All rights reserved.
+
+This library is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+This program is distributed in the hope that it will be useful, but
+without any warranty; without even the implied warranty of
+merchantability or fitness for a particular purpose.
+
 
 =head1 AUTHOR
 

@@ -1,12 +1,13 @@
 
-# Change 1..1 below to 1..last_test_to_print .
-# (It may become useful if the test is moved to ./t subdirectory.)
+# Time-stamp: "2004-06-10 20:22:53 ADT" 
 
-BEGIN { $| = 1; print "1..2\n"; }
-END {print "not ok 1\n" unless $loaded;}
+use Test;
+BEGIN { plan tests => 3 }
+
 use XML::TreeBuilder;
-$loaded = 1;
-print "ok 1\n";
+
+print "# Hi, I'm ", __FILE__ , " running  XML::TreeBuilder v$XML::TreeBuilder::VERSION\n";
+ok 1;
 
 use strict;
 my $x = XML::TreeBuilder->new;
@@ -28,19 +29,23 @@ my $y = XML::Element->new_from_lol(
  ]
 );
 
-$x->dump;
-$y->dump;
 
-if($x->same_as($y)) {
-  print "ok 2\n";
-} else {
-  print "fail 2\n";
+ok $x->same_as($y);
+
+unless( $ENV{'HARNESS_ACTIVE'} ) {
+  $x->dump;
+  $y->dump;
 }
+
+
 
 #print "\n", $x->as_Lisp_form, "\n";
 #print "\n", $x->as_XML, "\n\n";
 #print "\n", $y->as_XML, "\n\n";
 $x->delete;
 $y->delete;
+
+ok 1;
+print "# Bye from ", __FILE__, "\n";
 
 __END__
