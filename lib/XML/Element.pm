@@ -1,17 +1,20 @@
-
 require 5;
+
 package XML::Element;
-#Time-stamp: "2004-06-10 20:00:02 ADT"
+use warnings;
+use strict;
 use HTML::Tagset ();
-use HTML::Element 3.08 ();
-$VERSION = '3.09';
-@ISA = ('HTML::Element');
+use HTML::Element 4.0 ();
+
+use vars qw(@ISA $VERSION);
+$VERSION = '3.10_2';
+@ISA     = ('HTML::Element');
 
 # Init:
-%emptyElement = ();
+my %emptyElement = ();
 foreach my $e (%HTML::Tagset::emptyElement) {
-  $emptyElement{$e} = 1
-    if substr($e,0,1) eq '~' and $HTML::Tagset::emptyElement{$e};
+    $emptyElement{$e} = 1
+        if substr( $e, 0, 1 ) eq '~' and $HTML::Tagset::emptyElement{$e};
 }
 
 #--------------------------------------------------------------------------
@@ -19,9 +22,10 @@ foreach my $e (%HTML::Tagset::emptyElement) {
 
 sub _empty_element_map { \%emptyElement }
 
-*_fold_case = \&HTML::Element::_fold_case_NOT;
-*starttag   = \&HTML::Element::starttag_XML;
-*endtag     = \&HTML::Element::endtag_XML;
+*_fold_case      = \&HTML::Element::_fold_case_NOT;
+*starttag        = \&HTML::Element::starttag_XML;
+*endtag          = \&HTML::Element::endtag_XML;
+*encoded_content = \$HTML::Element::encoded_content;
 
 # TODO: override id with something that looks for xml:id too/instead?
 
@@ -30,37 +34,35 @@ sub _empty_element_map { \%emptyElement }
 #TODO: test and document this:
 # with no tagname set, assumes ALL all-whitespace nodes are ignorable!
 
-use strict;
-
 sub delete_ignorable_whitespace {
-  my $under_hash = $_[1];
-  my(@to_do) = ($_[0]);
-  
-  if($under_hash and ref($under_hash) eq 'ARRAY') {
-    $under_hash = { map {; $_ => 1 } @$under_hash };
-  }
-  
-  my $all = !$under_hash;
-  my($i,$this,$children);
-  while(@to_do) {
-    $this = shift @to_do;
-    $children = $this->content || next;
-    if(
-      ($all or $under_hash->{$this->tag})
-      and @$children
-    ) {
-      for($i = $#$children; $i >= 0; --$i) {
-        # work backwards thru the list
-        next if ref $children->[$i];
-        if($children->[$i] =~ m<^\s*$>s) { # all WS
-          splice @$children, $i, 1; # delete it.
-        }
-      }
+    my $under_hash = $_[1];
+    my (@to_do) = ( $_[0] );
+
+    if ( $under_hash and ref($under_hash) eq 'ARRAY' ) {
+        $under_hash = { map { ; $_ => 1 } @$under_hash };
     }
-    unshift @to_do, grep ref($_), @$children; # recurse
-  }
-  
-  return;
+
+    my $all = !$under_hash;
+    my ( $i, $this, $children );
+    while (@to_do) {
+        $this = shift @to_do;
+        $children = $this->content || next;
+        if ( ( $all or $under_hash->{ $this->tag } )
+            and @$children )
+        {
+            for ( $i = $#$children; $i >= 0; --$i ) {
+
+                # work backwards thru the list
+                next if ref $children->[$i];
+                if ( $children->[$i] =~ m<^\s*$>s ) {    # all WS
+                    splice @$children, $i, 1;            # delete it.
+                }
+            }
+        }
+        unshift @to_do, grep ref($_), @$children;        # recurse
+    }
+
+    return;
 }
 
 #--------------------------------------------------------------------------
@@ -76,6 +78,21 @@ XML::Element - XML elements with the same interface as HTML::Element
 =head1 SYNOPSIS
 
   [See HTML::Element]
+
+=head1 METHODS AND ATTRIBUTES
+
+=head2 delete_ignorable_whitespace
+
+TODO: test and document this:
+with no tagname set, assumes ALL all-whitespace nodes are ignorable!
+
+=head2 endtag
+
+Redirects to HTML::Element::endtag_XML
+
+=head2 starttag
+
+Redirects to HTML::Element::starttag_XML
 
 =head1 DESCRIPTION
 

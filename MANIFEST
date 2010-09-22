@@ -1,10 +1,14 @@
+Build.PL
 Changes
 lib/XML/Element.pm
 lib/XML/TreeBuilder.pm
-Makefile.PL
 MANIFEST
-MANIFEST.SKIP
+META.yml			Module meta-data (added by MakeMaker)
 README
 t/00about.t
 t/10main.t
-META.yml                                 Module meta-data (added by MakeMaker)
+t/parse_test.xml
+t/zz_perlcritic.t
+t/zz_pod-coverage.t
+t/zz_pod.t
+Makefile.PL

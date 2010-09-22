@@ -1,139 +1,199 @@
-
 require 5;
+
 package XML::TreeBuilder;
-#Time-stamp: "2004-06-10 19:59:14 ADT"
+
+use warnings;
 use strict;
 use XML::Element ();
-use XML::Parser ();
+use XML::Parser  ();
+use Carp;
 use vars qw(@ISA $VERSION);
 
-$VERSION = '3.09';
-@ISA = ('XML::Element');
+$VERSION = $XML::Element::VERSION;
+@ISA     = ('XML::Element');
 
 #==========================================================================
 sub new {
-  my $class = ref($_[0]) || $_[0];
-  # that's the only parameter it knows
-  
-  my $self = XML::Element->new('NIL');
-  bless $self, $class; # and rebless
-  $self->{'_element_class'} = 'XML::Element';
-  $self->{'_store_comments'}     = 0;
-  $self->{'_store_pis'}          = 0;
-  $self->{'_store_declarations'} = 0;
-  
-  my @stack;
-  # Compare the simplicity of this to the sheer nastiness of HTML::TreeBuilder!
-  
-  $self->{'_xml_parser'} = XML::Parser->new( 'Handlers' => {
-    'Start' => sub {
-      shift;
-      if(@stack) {
-         push @stack, $self->{'_element_class'}->new(@_);
-         $stack[-2]->push_content( $stack[-1] );
-       } else {
-         $self->tag(shift);
-         while(@_) { $self->attr(splice(@_,0,2)) };
-         push @stack, $self;
-       }
-    },
-    
-    'End'  => sub { pop @stack; return },
-    
-    'Char' => sub { $stack[-1]->push_content($_[1]) },
-    
-    'Comment' => sub {
-       return unless $self->{'_store_comments'};
-       (
-        @stack ? $stack[-1] : $self
-       )->push_content(
-         $self->{'_element_class'}->new('~comment', 'text' => $_[1])
-       );
-       return;
-    },
-    
-    'Proc' => sub {
-       return unless $self->{'_store_pis'};
-       (
-        @stack ? $stack[-1] : $self
-       )->push_content(
-         $self->{'_element_class'}->new('~pi', 'text' => "$_[1] $_[2]")
-       );
-       return;
-    },
-    
-    # And now, declarations:
-    
-    'Attlist' => sub {
-       return unless $self->{'_store_declarations'};
-       shift;
-       (
-        @stack ? $stack[-1] : $self
-       )->push_content(
-         $self->{'_element_class'}->new('~declaration',
-          'text' => join ' ', 'ATTLIST', @_
-         )
-       );
-       return;
-    },
-    
-    'Element' => sub {
-       return unless $self->{'_store_declarations'};
-       shift;
-       (
-        @stack ? $stack[-1] : $self
-       )->push_content(
-         $self->{'_element_class'}->new('~declaration',
-          'text' => join ' ', 'ELEMENT', @_
-         )
-       );
-       return;
-    },
-    
-    'Doctype' => sub {
-       return unless $self->{'_store_declarations'};
-       shift;
-       (
-        @stack ? $stack[-1] : $self
-       )->push_content(
-         $self->{'_element_class'}->new('~declaration',
-          'text' => join ' ', 'DOCTYPE', @_
-         )
-       );
-       return;
-    },
-    
-  });
-  
-  return $self;
-}
-#==========================================================================
-sub _elem # universal accessor...
-{
-  my($self, $elem, $val) = @_;
-  my $old = $self->{$elem};
-  $self->{$elem} = $val if defined $val;
-  return $old;
+    my ( $this, $arg ) = @_;
+    my $class = ref($this) || $this;
+
+    my $NoExpand     = ( delete $arg->{'NoExpand'}     || undef );
+    my $ErrorContext = ( delete $arg->{'ErrorContext'} || undef );
+
+    if ( %{$arg} ) {
+        croak "unknown args: " . join( ", ", keys %{$arg} );
+    }
+
+    my $self = XML::Element->new('NIL');
+    bless $self, $class;    # and rebless
+    $self->{'_element_class'}      = 'XML::Element';
+    $self->{'_store_comments'}     = 0;
+    $self->{'_store_pis'}          = 0;
+    $self->{'_store_declarations'} = 0;
+    $self->{'NoExpand'}            = $NoExpand if ($NoExpand);
+    $self->{'ErrorContext'}        = $ErrorContext if ($ErrorContext);
+
+    # have to let HTML::Element know there are encoded entities
+    $XML::Element::encoded_content = ( $self->{'NoExpand'} || 0 );
+
+    my @stack;
+
+ # Compare the simplicity of this to the sheer nastiness of HTML::TreeBuilder!
+
+    $self->{'_xml_parser'} = XML::Parser->new(
+        'Handlers' => {
+            'Default' => sub {
+
+                # Stuff unexpanded entities back on to the stack as is.
+                if ( ( $self->{'NoExpand'} ) && ( $_[1] =~ /&[^\;]+\;/ ) ) {
+                    $stack[-1]->push_content( $_[1] );
+                }
+                return;
+            },
+            'Start' => sub {
+                shift;
+                if (@stack) {
+                    push @stack, $self->{'_element_class'}->new(@_);
+                    $stack[-2]->push_content( $stack[-1] );
+                }
+                else {
+                    $self->tag(shift);
+                    while (@_) { $self->attr( splice( @_, 0, 2 ) ) }
+                    push @stack, $self;
+                }
+            },
+
+            'End' => sub { pop @stack; return },
+
+            'Char' => sub {
+
+       # have to escape '&' if we have entities to catch things like &amp;foo;
+                if ( $_[1] eq '&' and $self->{'NoExpand'} ) {
+                    $stack[-1]->push_content('&amp;');
+                }
+                else {
+                    $stack[-1]->push_content( $_[1] );
+                }
+            },
+
+            'Comment' => sub {
+                return unless $self->{'_store_comments'};
+                ( @stack ? $stack[-1] : $self )
+                    ->push_content( $self->{'_element_class'}
+                        ->new( '~comment', 'text' => $_[1] ) );
+                return;
+            },
+
+            'Proc' => sub {
+                return unless $self->{'_store_pis'};
+                ( @stack ? $stack[-1] : $self )
+                    ->push_content( $self->{'_element_class'}
+                        ->new( '~pi', 'text' => "$_[1] $_[2]" ) );
+                return;
+            },
+
+            'Final' => sub {
+
+                # clean up the internal attributes
+                $self->root()->traverse(
+                    sub {
+                        my ( $node, $start ) = @_;
+                        if ( ref $node ) {    # it's an element
+                            $node->attr( 'NoExpand',     undef );
+                            $node->attr( 'ErrorContext', undef );
+                        }
+                    }
+                );
+            },
+
+            # And now, declarations:
+
+            'Attlist' => sub {
+                return unless $self->{'_store_declarations'};
+                shift;
+                ( @stack ? $stack[-1] : $self )->push_content(
+                    $self->{'_element_class'}->new(
+                        '~declaration',
+                        'text' => join ' ',
+                        'ATTLIST', @_
+                    )
+                );
+                return;
+            },
+
+            'Element' => sub {
+                return unless $self->{'_store_declarations'};
+                shift;
+                ( @stack ? $stack[-1] : $self )->push_content(
+                    $self->{'_element_class'}->new(
+                        '~declaration',
+                        'text' => join ' ',
+                        'ELEMENT', @_
+                    )
+                );
+                return;
+            },
+
+            'Doctype' => sub {
+                return unless $self->{'_store_declarations'};
+                shift;
+                ( @stack ? $stack[-1] : $self )->push_content(
+                    $self->{'_element_class'}->new(
+                        '~declaration',
+                        'text' => join ' ',
+                        'DOCTYPE', @_
+                    )
+                );
+                return;
+            },
+
+            'Entity' => sub {
+                return unless $self->{'_store_declarations'};
+                shift;
+                ( @stack ? $stack[-1] : $self )->push_content(
+                    $self->{'_element_class'}->new(
+                        '~declaration',
+                        'text' => join ' ',
+                        'ENTITY', @_
+                    )
+                );
+                return;
+            },
+        },
+        'NoExpand'     => $self->{'NoExpand'},
+        'ErrorContext' => $self->{'ErrorContext'},
+    );
+
+    return $self;
 }
 
-sub store_comments { shift->_elem('_store_comments', @_); }
-sub store_declarations { shift->_elem('_store_declarations', @_); }
-sub store_pis      { shift->_elem('_store_pis', @_); }
+#==========================================================================
+sub _elem    # universal accessor...
+{
+    my ( $self, $elem, $val ) = @_;
+    my $old = $self->{$elem};
+    $self->{$elem} = $val if defined $val;
+    return $old;
+}
+
+sub store_comments     { shift->_elem( '_store_comments',     @_ ); }
+sub store_declarations { shift->_elem( '_store_declarations', @_ ); }
+sub store_pis          { shift->_elem( '_store_pis',          @_ ); }
 
 #==========================================================================
 
 sub parse {
-  shift->{'_xml_parser'}->parse(@_);
+    shift->{'_xml_parser'}->parse(@_);
 }
 
-sub parse_file { shift->parsefile(@_) } # alias
+sub parse_file { shift->parsefile(@_) }    # alias
 
 sub parsefile {
-  shift->{'_xml_parser'}->parsefile(@_);
+    shift->{'_xml_parser'}->parsefile(@_);
 }
 
 sub eof {
-  delete shift->{'_xml_parser'}; # sure, why not?
+    delete shift->{'_xml_parser'};         # sure, why not?
 }
 
 #==========================================================================
@@ -149,7 +209,7 @@ XML::TreeBuilder - Parser that builds a tree of XML::Element objects
 =head1 SYNOPSIS
 
   foreach my $file_name (@ARGV) {
-    my $tree = XML::TreeBuilder->new; # empty tree
+    my $tree = XML::TreeBuilder->new({ 'NoExpand' => 0, 'ErrorContext' => 0 }); # empty tree
     $tree->parse_file($file_name);
     print "Hey, here's a dump of the parse tree of $file_name:\n";
     $tree->dump; # a method we inherit from XML::Element
@@ -204,6 +264,26 @@ allows you to call these additional methods:
 =item $root = XML::TreeBuilder->new()
 
 Construct a new XML::TreeBuilder object.
+
+Parameters:
+
+=over
+
+=item NoExpand
+
+    Passed to XML::Parser. Do not Expand external entities.
+    Deafult: undef
+
+=item ErrorContext
+
+    Passed to XML::Parser. Number of context lines to generate on errors.
+    Deafult: undef
+
+=back
+
+=item $root->eof
+
+Deletes parser object.
 
 =item $root->parse(...options...)
 
