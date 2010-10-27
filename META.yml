@@ -1,19 +1,20 @@
 ---
 name: XML-TreeBuilder
-version: 3.10_2
+version: 3.10_3
 author:
   - 'Jeff Fearn <Jeff.Fearn@gmail.com>'
 abstract: XML elements with the same interface as HTML::Element
 license: perl
 resources:
-  license: ~
+  license: http://dev.perl.org/licenses/
 requires:
-  HTML::Element: 4
+  HTML::Element: 4.1
   HTML::Tagset: 3.02
   XML::Parser: 0
+  perl: 5.4.0
 build_requires:
   Devel::Cover: 0
-  HTML::Element: 4
+  HTML::Element: 4.1
   HTML::Tagset: 3.02
   Module::Build: 0
   Test::Exception: 0
@@ -24,7 +25,7 @@ build_requires:
 provides:
   XML::Element:
     file: lib/XML/Element.pm
-    version: 3.10_2
+    version: 3.10_3
   XML::TreeBuilder:
     file: lib/XML/TreeBuilder.pm
     version: 0
