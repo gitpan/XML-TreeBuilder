@@ -1,7 +1,7 @@
 ---
 abstract: 'XML elements with the same interface as HTML::Element'
 author:
-  - 'Jeff Fearn <Jeff.Fearn@gmail.com>'
+  - 'Jeff Fearn <jfearn@cpan.org>'
 build_requires:
   Devel::Cover: 0
   HTML::Element: 4.1
@@ -23,10 +23,10 @@ name: XML-TreeBuilder
 provides:
   XML::Element:
     file: lib/XML/Element.pm
-    version: 4.0
+    version: 4.1
   XML::TreeBuilder:
     file: lib/XML/TreeBuilder.pm
-    version: 0
+    version: 4.1
 requires:
   HTML::Element: 4.1
   HTML::Tagset: 3.02
@@ -34,4 +34,4 @@ requires:
   perl: v5.4.0
 resources:
   license: http://dev.perl.org/licenses/
-version: 4.0
+version: 4.1

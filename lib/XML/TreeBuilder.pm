@@ -9,7 +9,7 @@ use XML::Parser  ();
 use Carp;
 use vars qw(@ISA $VERSION);
 
-$VERSION = $XML::Element::VERSION;
+$VERSION = 4.1;
 @ISA     = ('XML::Element');
 
 #==========================================================================
@@ -272,12 +272,12 @@ Parameters:
 =item NoExpand
 
     Passed to XML::Parser. Do not Expand external entities.
-    Deafult: undef
+    Default: undef
 
 =item ErrorContext
 
     Passed to XML::Parser. Number of context lines to generate on errors.
-    Deafult: undef
+    Default: undef
 
 =back
 
@@ -339,7 +339,11 @@ merchantability or fitness for a particular purpose.
 
 =head1 AUTHOR
 
-Sean M. Burke, E<lt>sburke@cpan.orgE<gt>
+Current Author:
+	Jeff Fearn C<< <jfearn@cpan.org> >>.
+
+Former Authors:
+	Sean M. Burke, E<lt>sburke@cpan.orgE<gt>
 
 =cut
 
