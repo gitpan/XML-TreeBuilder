@@ -13,8 +13,8 @@ build_requires:
   Test::Pod::Coverage: 0
   XML::Parser: 0
 configure_requires:
-  Module::Build: 0.36
-generated_by: 'Module::Build version 0.3603'
+  Module::Build: 0
+generated_by: 'Module::Build version 0.3624'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -23,10 +23,10 @@ name: XML-TreeBuilder
 provides:
   XML::Element:
     file: lib/XML/Element.pm
-    version: 4.1
+    version: 4.2
   XML::TreeBuilder:
     file: lib/XML/TreeBuilder.pm
-    version: 4.1
+    version: 0
 requires:
   HTML::Element: 4.1
   HTML::Tagset: 3.02
@@ -34,4 +34,4 @@ requires:
   perl: v5.4.0
 resources:
   license: http://dev.perl.org/licenses/
-version: 4.1
+version: 4.2
