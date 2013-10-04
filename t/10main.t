@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::More tests => 5;
+use Test::More tests => 8;
 
 BEGIN {
     use_ok('XML::TreeBuilder');
@@ -60,12 +60,19 @@ ok( $x->same_as($y), "same as" );
 my $z = XML::TreeBuilder->new( { NoExpand => 1, ErrorContext => 2 } );
 $z->store_cdata(1);
 $z->parsefile("t/parse_test.xml");
-like( $z->as_XML(), qr{<p>Here &amp;foo; There\n<~cdata text="text">\n&foo;\n</~cdata>\n</p>}, 'Decoded ampersand and cdata' );
+like(
+    $z->as_XML(),
+    qr{<p id="&id;">Here &amp;foo; There\n<~cdata text="text">\n&foo;\n</~cdata>\n&foo;\n</p>},
+    'Decoded ampersand and cdata'
+);
 $z->delete_ignorable_whitespace();
 
 my $za = XML::TreeBuilder->new( { NoExpand => 1, ErrorContext => 2 } );
 $za->store_declarations(1);
-$za->parse(qq{<?xml version='1.0' encoding='utf-8' ?>
+$za->store_pis(1);
+$za->store_declarations(1);
+$za->parse(
+    qq{<?xml version='1.0' encoding='utf-8' ?>
 <!DOCTYPE para PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY ent_name "ent_value">
 ]>
@@ -74,6 +81,26 @@ $za->parse(qq{<?xml version='1.0' encoding='utf-8' ?>
 );
 
 ## BUGBUG isn't this backwards and the DOCTYPE should be before the 'para' tag?
-like( $za->as_XML(), qr{<para><!DOCTYPE para http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd -//OASIS//DTD DocBook XML V4.5//EN 1><!ENTITY ent_name ent_value   >Here &amp;foo; There</para>}, 'Entities' );
+like(
+    $za->as_XML(),
+    qr{<para><!DOCTYPE para http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd -//OASIS//DTD DocBook XML V4.5//EN 1><!ENTITY ent_name ent_value   >Here &amp;foo; There</para>},
+    'Entities'
+);
 
+eval { my $xf = XML::TreeBuilder->new( NoExpand => 1 ); };
+
+like(
+    $@,
+    qr/new expects an anonymous hash.* for it's parameters, not a/,
+    'new expects a hash'
+);
+ok( $x->same_as($y), "same as" );
+
+my $zb = XML::TreeBuilder->new( { NoExpand => 0, ErrorContext => 2 } );
+$zb->parse_file("t/parse_test.xml");
+like(
+    $zb->as_XML(),
+    qr{<p id="this.is.an.id">Here &foo; There\n\n&foo;\n\nThis is FOO\n</p>},
+    'Expand entity'
+);
 __END__

@@ -4,18 +4,18 @@ author:
   - 'Jeff Fearn <jfearn@cpan.org>'
 build_requires:
   Devel::Cover: 0
+  File::Basename: 0
   HTML::Element: 4.1
   HTML::Tagset: 3.02
+  IO::File: 0
   Module::Build: 0
   Test::Exception: 0
   Test::More: 0
-  Test::Perl::Critic: 0
-  Test::Pod::Coverage: 0
+  XML::Catalog: 1.000000
   XML::Parser: 0
 configure_requires:
   Module::Build: 0
-dynamic_config: 1
-generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Module::Build version 0.3624'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -24,15 +24,18 @@ name: XML-TreeBuilder
 provides:
   XML::Element:
     file: lib/XML/Element.pm
-    version: 4.3
+    version: 5.0
   XML::TreeBuilder:
     file: lib/XML/TreeBuilder.pm
-    version: 4.3
+    version: 5.0
 requires:
+  File::Basename: 0
   HTML::Element: 4.1
   HTML::Tagset: 3.02
+  IO::File: 0
+  XML::Catalog: 1.000000
   XML::Parser: 0
   perl: v5.4.0
 resources:
   license: http://dev.perl.org/licenses/
-version: 4.3
+version: 5.0
