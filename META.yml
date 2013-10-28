@@ -11,7 +11,7 @@ build_requires:
   Module::Build: 0
   Test::Exception: 0
   Test::More: 0
-  XML::Catalog: 1.000000
+  XML::Catalog: 1.000001
   XML::Parser: 0
 configure_requires:
   Module::Build: 0
@@ -24,18 +24,18 @@ name: XML-TreeBuilder
 provides:
   XML::Element:
     file: lib/XML/Element.pm
-    version: 5.0
+    version: 5.1
   XML::TreeBuilder:
     file: lib/XML/TreeBuilder.pm
-    version: 5.0
+    version: 5.1
 requires:
   File::Basename: 0
   HTML::Element: 4.1
   HTML::Tagset: 3.02
   IO::File: 0
-  XML::Catalog: 1.000000
+  XML::Catalog: 1.000001
   XML::Parser: 0
   perl: v5.4.0
 resources:
   license: http://dev.perl.org/licenses/
-version: 5.0
+version: 5.1
