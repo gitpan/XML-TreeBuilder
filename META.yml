@@ -23,10 +23,10 @@ name: XML-TreeBuilder
 provides:
   XML::Element:
     file: lib/XML/Element.pm
-    version: 5.3
+    version: 5.4
   XML::TreeBuilder:
     file: lib/XML/TreeBuilder.pm
-    version: 5.3
+    version: 5.4
 requires:
   File::Basename: 0
   HTML::Element: 4.1
@@ -37,4 +37,4 @@ requires:
   perl: v5.4.0
 resources:
   license: http://dev.perl.org/licenses/
-version: 5.3
+version: 5.4
